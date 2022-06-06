@@ -1,13 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+class FlipDrawer extends StatefulWidget {
+  const FlipDrawer({Key? key}) : super(key: key);
 
   @override
-  State<CustomDrawer> createState() => _CustomDrawerState();
+  State<FlipDrawer> createState() => _CustomDrawerState();
 }
 
-class _CustomDrawerState extends State<CustomDrawer>
+class _CustomDrawerState extends State<FlipDrawer>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
   bool? canBeDragged;
@@ -24,6 +26,7 @@ class _CustomDrawerState extends State<CustomDrawer>
       ? animationController.forward()
       : animationController.reverse();
 
+  final double maxSlide = 225.0;
   void _onDragStart(DragStartDetails details) {
     bool isDragOpenFromLeft =
         animationController.isDismissed && details.globalPosition.dx < 0;
@@ -55,7 +58,7 @@ class _CustomDrawerState extends State<CustomDrawer>
     }
   }
 
-  final double maxSlide = 225.0;
+  double dragPosition = 0;
   @override
   Widget build(BuildContext context) {
     var myDrawer = Container(
@@ -66,9 +69,12 @@ class _CustomDrawerState extends State<CustomDrawer>
     );
     return GestureDetector(
       onTap: toggle,
-      onHorizontalDragStart: _onDragStart,
-      onHorizontalDragUpdate: _onDragUpdate,
-      onHorizontalDragEnd: _onDragEnd,
+      // onHorizontalDragStart: _onDragStart,
+      onHorizontalDragUpdate: (details) => setState(() {
+        dragPosition -= details.delta.dx;
+        dragPosition %= 360;
+      }),
+      // onHorizontalDragEnd: _onDragEnd,
       child: AnimatedBuilder(
         animation: animationController,
         builder: (context, _) {
@@ -78,12 +84,15 @@ class _CustomDrawerState extends State<CustomDrawer>
           return Stack(
             children: [
               myDrawer,
-              Transform(
-                transform: Matrix4.identity()
-                  ..translate(slide)
-                  ..scale(scale),
-                alignment: Alignment.centerLeft,
-                child: myChild,
+              Transform.translate(
+                offset: Offset(maxSlide * (animationController.value - 1), 0),
+                child: Transform(
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateY(-pi / 2 * (1 - animationController.value)),
+                  alignment: Alignment.centerLeft,
+                  child: myChild,
+                ),
               ),
             ],
           );

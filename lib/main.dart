@@ -1,4 +1,4 @@
-import 'package:complex_ui/widgets/drawer_slider.dart';
+import 'package:complex_ui/widgets/flip_drawer.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         debugShowCheckedModeBanner: false,
-        home: const CustomDrawer()
+        home: const FlipDrawer()
         // const MyHomePage(title: 'Flutter Demo Home Page'),
         );
   }
